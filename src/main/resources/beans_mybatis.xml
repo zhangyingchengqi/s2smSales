@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:c="http://www.springframework.org/schema/c"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+         http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+         http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd">
+
+
+	<!-- 包扫描以加载带了注解的要托管bean -->
+	<context:component-scan base-package="com.yc"/>
+	
+	<!-- 启用事务注解驱动 -->
+	 <tx:annotation-driven transaction-manager="txManager"/>
+
+	<!-- spring如何整合mybatis -->
+	<!-- 一. 数据库配置读取 因为要创建数据源, 要知道数据库的联接配置
+	
+	  PropertyPlaceholderConfigurer:功能读取  db.properties文件
+	 -->
+	<bean id="a"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations" value="classpath:jdbc.properties" />
+	</bean>
+
+	<!-- dbcp的配置, 
+	
+	
+	 -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="${mysql.driverName}" />
+		<property name="url" value="${mysql.url}" />
+		<property name="username" value="${mysql.uname}" />
+		<property name="password" value="${mysql.pwd}" />
+	</bean>
+	
+	<!-- 先配置  mybatis的sqlsessionfactory工厂类 -->
+	<!-- 步骤三: 配置mybatis整合spring的插件 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"></property>
+		<!-- 还是用mybatis中的配置文件 <property name="configLocation" value="classpath:mybatis-config.xml"></property> -->
+		<!-- 优化: 不再需要 mybatis的配置文件, 配置mybatis中别名. -->
+		<property name="typeAliasesPackage" value="com.yc.bean"></property>
+		
+		<property name="mapperLocations">
+			<array>
+				
+			</array>
+		</property>
+		
+		<!-- 主要用来配置mybatis中的  configuration中的settings配置 -->
+		<property name="configurationProperties">
+			<props>
+				<prop key="logImpl">LOG4J</prop>
+			</props>
+		</property>
+	</bean>
+	
+	<!-- 步骤四: 创建sqlSessiontemplate,    这个类是包装了 mybatis中的sqlsession的类,  用于获取数据库的联接 -->
+	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+		<!-- 只能通过 构造方法注入 sqlSessionFactory -->
+		<constructor-arg ref="sqlSessionFactory"></constructor-arg>
+	</bean>
+	
+	<!-- 事务管理器，mybatis使用的是与jdbc同款的事务管理器,其它框架不一样. -->
+	 <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <!-- (this dependency is defined somewhere else) -->
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+	
+	
+	
+	
+	<bean id="cusCustomerMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">        
+ 		<property name="mapperInterface" value="com.yc.dao.CusCustomerDao" />       
+  		<property name="sqlSessionFactory" ref="sqlSessionFactory" />        
+ 	</bean>  
+ 	
+ 	<bean id="saleProductMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">        
+ 		<property name="mapperInterface" value="com.yc.dao.SaleProductDao" />       
+  		<property name="sqlSessionFactory" ref="sqlSessionFactory" />        
+ 	</bean>  
+ 	
+ 	<bean id="saleOrderMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">        
+ 		<property name="mapperInterface" value="com.yc.dao.mapper.SaleOrderMapper" />       
+  		<property name="sqlSessionFactory" ref="sqlSessionFactory" />        
+ 	</bean>  
+ 	
+ 
+ 	
+ 	
+	
+	
+	
+	
+
+</beans>

@@ -1,0 +1,239 @@
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<head>
+<title>添加订单</title>
+	<meta http-equiv="pragma" content="no-cache">
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="expires" content="0">
+	<link rel="stylesheet" type="text/css" href="styles.css">
+	
+	
+	 <script type="text/javascript" src="js/jquery-1.8.0.js"></script>
+	 <script type="text/javascript" >
+	 	//  初始化函数，显示当前订单   params=   ?odrId=8
+	 	function initOrderWithLine(params){
+	 		$.ajax({
+				  type: 'POST',
+				  url: "saleOrder_findOrderWithDetail"+ params,
+				  dataType: 'JSON',
+				  success: function( data ){
+					  if( data.code==1){
+						  //alert("成功"+ data.obj);
+						  $("#odrId").html(  data.obj.odrId);
+						  $("#odrOrderDate").html(  data.obj.odrOrderDateString);
+						  $("#odrCustomerName").html(  data.obj.odrCustomerName);
+						  $("#odrDeliverDate").html(  data.obj.odrDeliverDateString);
+						  $("#odrDeliverAddr").html(  data.obj.odrDeliverAddr);
+						  
+						  
+						  document.forms[0].elements["line.odlId"].value=data.obj.odrId;
+						  
+						  var htmlstring="";
+						  $("#result").html("");
+						  
+						  
+						  for(var i=0;i<data.obj.saleOrderLines.length;i++){
+							  var o=data.obj.saleOrderLines[i];
+							  
+							  var smallcount= o.odlProductPrice* o.odlProductCount;
+							  htmlstring+=' <tr><td class="data_cell"> '+o.odlProductName+'  </td>';
+							  htmlstring+=' <td class="data_cell" style="text-align:right;">'+o.odlProductPrice+'</td>';
+							  htmlstring+=' <td class="data_cell" style="text-align:right;">'+o.odlProductCount+'</td>';
+							  htmlstring+=' <td class="data_cell" style="text-align:right;">'+  smallcount  +'</td>';
+							  htmlstring+=' <td class="data_cell"><input type="button" onclick="del('+ o.odlId  +')" value="删除" /></td>';
+							  htmlstring+='</tr>';
+						  }
+						  
+						  $("#result").html( htmlstring);
+					  }
+					  
+				  }
+			});
+	 	}
+	 
+	 	$(function(){
+			var index=location.href.lastIndexOf("?");
+			var params=location.href.substring(   index);
+			
+			initOrderWithLine(params);
+			
+			
+			//查出所有的产品 
+			$.ajax({
+				  type: 'POST',
+				  url: "saleProduct_findAll",
+				  dataType: 'JSON',
+				  success: function( data ){
+					  if( data.code==1){
+						  $("#line_odlProductName").html("");
+						  var htmlstring='';
+						  htmlstring+='<option value="1">请选择...</option>';
+						  
+						  for(  var i=0;i<data.obj.length;i++){
+							  var pro=data.obj[i];
+							  var val=pro.prodName+"-"+pro.prodPrice;    //产品名-价格
+							  htmlstring+='<option value="'+  val+  '">'+ val+'</option>';
+						  }
+						  $("#line_odlProductName").html(htmlstring);
+					  }
+					  
+				  }
+			});
+			
+			
+			
+			
+		}); 
+	 </script>
+	
+	
+		<script type="text/javascript">
+			//function doSave(){
+			//	document.forms[0].action="order!doAdd.action";
+			//	document.forms[0].submit();
+			//}
+			function doAddDetail(){
+			    if(document.forms[0].elements["line.odlProductName"].selectedIndex==0){
+			    	alert("请选定一个产品");
+			    	return false ;
+			    }
+			 
+			    if(document.forms[0].elements["line.odlProductCount"].value<=0){
+			    	alert("数量必须为非零正整数");
+			    	return false;
+			    }
+			    var productName=document.forms[0].elements["line.odlProductName"].value.split("-")[0];
+			    
+			    
+			    var index=location.href.lastIndexOf("?");
+				var params=location.href.substring(   index);  //取出订单号
+				
+			    $.ajax({
+					  type: 'POST',
+					  data: {
+						  'saleOrderLine.saleOrder.odrId':  document.forms[0].elements["line.odlId"].value   ,
+						  'saleOrderLine.odlProductCount':  document.forms[0].elements["line.odlProductCount"].value  ,
+						  'saleOrderLine.odlProductName':  productName    ,
+						  'saleOrderLine.odlProductPrice': document.forms[0].elements["line.odlProductPrice"].value   ,
+					  },
+					  url: "saleOrder_saveOrderLine",
+					  dataType: 'JSON',
+					  success: function( data ){
+						  if( data.code==1){
+							  initOrderWithLine(params);
+						  }
+					  }
+				});
+			}
+			function setProdPrice(oSelect){
+				var text = oSelect.options[oSelect.selectedIndex].text;
+				var arr=text.split('-'); 
+				var prodName=arr[0];
+				var pri = arr[1];
+				var oPrice = document.forms[0].elements["line.odlProductPrice"];
+				oPrice.value = pri;
+				setTotal();
+			}
+			function setTotal(){
+				var count = document.forms[0].elements["line.odlProductCount"].value;
+				var price = document.forms[0].elements["line.odlProductPrice"].value;
+				var oTotal = document.forms[0].elements["total"];
+				oTotal.value = price * count;
+			}
+			function del(odlId){
+				 var index=location.href.lastIndexOf("?");
+					var params=location.href.substring(   index);
+				$.ajax({
+					  type: 'POST',
+					  url: "saleOrder_delOrderLine?saleOrderLine.odlId="+odlId,
+					  dataType: 'JSON',
+					  success: function( data ){
+						  if( data.code==1){
+							  initOrderWithLine(params);
+						  }
+					  }
+				});
+			}
+		</script>
+</head>
+<body>
+
+<div class="main" style="text-align:left;">
+<b>您当前的位置：</b><a href="#">销售管理</a> &gt; 添加订单
+<hr color="#A37B74" size="1px" />
+</div>
+<div class="main">
+<form action="order" method="post">
+	<input type="hidden" name="op" value="doAdd" />
+	<input type="hidden" name="line.odlId" value="" />
+	<table class="input_table" border="0" cellPadding="3" cellSpacing="0">
+		<tr>
+			<td class="input_title">订单编号</td>
+			<td class="input_content" id="odrId">510</td>
+			<td class="input_title">下单日期</td>
+			<td class="input_content" id="odrOrderDate">2015-09-02</td>
+		</tr>
+		<tr>
+			<td class="input_title">客户名称</td>
+			<td class="input_content" id="odrCustomerName">中国工业集团</td>
+			<td class="input_title">送货时间</td>
+			<td class="input_content" id="odrDeliverDate">2015-09-03</td>
+		</tr>
+		<tr>
+			<td class="input_title">送货地址</td>
+			<td class="input_content" colspan="3" id="odrDeliverAddr">北京兴华门32号</td>
+		</tr>
+	</table>
+	<table class="data_table" border="0" cellPadding="3" cellSpacing="0">
+		<tr>
+			<td class="data_title" style="width:200px;">产品名称</td>
+			<td class="data_title" style="width:100px;">单价</td>
+			<td class="data_title" style="width:100px;">数量</td>
+			<td class="data_title" style="width:100px;">总价</td>
+			<td class="data_title">操作</td>
+		</tr>
+		
+		<tbody id="result">
+			
+		</tbody>
+		
+			
+		
+		
+		
+		
+		<tr>
+			<td class="data_cell">
+				<input type="hidden" name="line.saleOrder.odrId" value="510" />
+				
+				<select name="line.odlProductName" id="line_odlProductName" onchange="javascript:setProdPrice(this);">
+    <option value="1">请选择...</option>
+    <option value="GPS-3300.0">GPS-3300.0</option>
+    <option value="安全电源-2345.0">安全电源-2345.0</option>
+
+
+</select>
+
+			</td>
+			<td class="data_cell"><input type="text" name="line.odlProductPrice" readonly="true" size="15" /></td>
+			<td class="data_cell"><input type="text" name="line.odlProductCount" value="0" onblur="setTotal();" size="15" /></td>
+			<td class="data_cell"><input type="text" name="total" readonly="readonly" value="0" size="15" /></td>
+			<td class="data_cell"><input type="button" onclick="doAddDetail()" value="保存订单行" /></td>
+		</tr>
+	</table>
+	
+</form>
+	
+</div>
+<div class="main" style="text-align:right;">
+<hr color="#A37B74" size="1px" />
+&copy; 2012 源辰信息技术有限公司
+</div>
+</body>
+</html>

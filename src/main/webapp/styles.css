@@ -1,0 +1,102 @@
+div,li,td,p,select,input,textarea
+{
+	font-family:verdana;
+	font-size:9pt;
+}
+a{
+	color:#000;
+}
+input{
+	border:1px solid #A37B74;
+	color:#5F2325;
+}
+button{
+	border:solid 1px black;
+	width:100px;
+	margin:0 20px;
+}
+.main{
+	width:780px;
+	text-align:center;
+}
+.input_table{
+	width:99%;
+	border-top-width: 1px;
+	border-right-width: 0px;
+	border-bottom-width: 0px;
+	border-left-width: 1px;
+	border-top-style: solid;
+	border-right-style: solid;
+	border-bottom-style: solid;
+	border-left-style: solid;
+	border-top-color: #A37B74;
+	border-right-color: #A37B74;
+	border-bottom-color: #A37B74;
+	border-left-color: #A37B74;
+	padding:3px;
+	margin-bottom:3px;
+}
+.input_title{
+	background-color:#FFD695;
+	text-align:right;
+	border-top-width: 0px;
+	border-right-width: 1px;
+	border-bottom-width: 1px;
+	border-left-width: 0px;
+	border-top-style: solid;
+	border-right-style: solid;
+	border-bottom-style: solid;
+	border-left-style: solid;
+	border-top-color: #A37B74;
+	border-right-color: #A37B74;
+	border-bottom-color: #A37B74;
+	border-left-color: #A37B74;
+	font-weight:bold;
+}
+.input_content{
+	background-color: #FFFFFF;
+	border-top-width: 0px;
+	border-right-width: 1px;
+	border-bottom-width: 1px;
+	border-left-width: 0px;
+	border-top-style: solid;
+	border-right-style: solid;
+	border-bottom-style: solid;
+	border-left-style: solid;
+	border-top-color: #A37B74;
+	border-right-color: #A37B74;
+	border-bottom-color: #A37B74;
+	border-left-color: #A37B74;
+	padding:6px;
+}
+.data_table
+{
+	width:99%;
+	border:solid 1px #8A5E5F;
+	background-color:#fff;
+	border-top-color:#8A5E5F;
+	border-right-color:#8A5E5F;
+	border-bottom-color:#8A5E5F;
+	border-left-color:#8A5E5F;	
+}
+.data_title
+{
+	border:solid 1px #FFF;
+	background-color:#F8D59E;
+	border-right-color:#8A5E5F;
+	border-bottom-color:#8A5E5F;
+	border-left-color:#ffffff;
+	font-weight:bold;
+	padding:4px 8px;
+	text-align:center;
+}
+.data_cell
+{
+	border-width:0px;
+	border-top:1px solid #CCB8B8;
+	border-right:1px solid #CCB8B8;
+	padding:1px 4px 0px 4px;
+	cursor:hand;
+	line-height:16px;
+	margin:0px;
+}
